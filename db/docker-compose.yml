@@ -1,9 +1,10 @@
 version: '3.8'
 
 services:
+  # === Base de données MySQL ===
   mysql:
     image: mysql:8.0
-    container_name: dj-queue-mysql
+    container_name: dj_mysql_local
     environment:
       MYSQL_ROOT_PASSWORD: rootpassword
       MYSQL_DATABASE: dj_queue
@@ -12,12 +13,27 @@ services:
     ports:
       - "3306:3306"
     volumes:
+      # Persistance des données MySQL
       - mysql_data:/var/lib/mysql
+      # Initialisation automatique au premier lancement
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      timeout: 5s
-      retries: 10
+    command: --default-authentication-plugin=mysql_native_password
+
+  # === Serveur Redis ===
+  redis:
+    image: redis:7
+    container_name: dj_redis_local
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+      # 1. On charge le fichier de configuration que l'on vient de créer
+      - ./redis.conf:/usr/local/etc/redis/redis.conf
+      # 2. On partage le dossier contenant le socket avec notre machine locale
+      - ./redis-socket:/var/run/redis
+    # On indique à Redis d'utiliser notre fichier de configuration
+    command: redis-server /usr/local/etc/redis/redis.conf
 
 volumes:
   mysql_data:
+  redis_data:
