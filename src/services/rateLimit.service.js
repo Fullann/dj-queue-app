@@ -1,4 +1,5 @@
 const db = require("../config/database");
+const { msToMinutesCeil } = require("../utils/time.utils");
 
 class RateLimitService {
   async getRateLimitSettings(eventId) {
@@ -52,10 +53,11 @@ class RateLimitService {
     }
 
     if (limit.request_count >= RATE_LIMIT_MAX_REQUESTS) {
-      const remainingTime = Math.ceil((limit.reset_at - now) / 1000 / 60);
+      const remainingMs = Math.max(0, limit.reset_at - now);
       return {
         allowed: false,
-        remainingTime,
+        remainingMs,
+        remainingMinutes: msToMinutesCeil(remainingMs),
         count: limit.request_count,
         max: RATE_LIMIT_MAX_REQUESTS,
       };

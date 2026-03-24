@@ -8,6 +8,7 @@
     <script src="/socket.io/socket.io.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
     <script src="https://sdk.scdn.co/spotify-player.js"></script>
+    <script src="/js/time-utils.js"></script>
     <style>
       @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap");
       * { font-family: "Inter", sans-serif; }
@@ -395,16 +396,19 @@
     <!-- Player Spotify -->
     <div
       id="spotifyPlayer"
-      class="hidden bg-violet-600 rounded-2xl shadow-lg p-4 transition-colors duration-300"
+      class="hidden bg-white/5 border border-white/10 rounded-2xl shadow-lg p-4 transition-colors duration-300"
     >
-      <h3 class="text-white font-bold mb-3 text-lg">🎵 Lecture en cours</h3>
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="text-white font-bold text-lg">🎵 Lecture en cours</h3>
+        <span class="text-xs text-violet-300 border border-violet-400/30 bg-violet-500/10 px-2 py-1 rounded-full">Spotify</span>
+      </div>
 
-      <div class="flex items-center gap-4 mb-3">
+      <div class="flex items-center gap-4 mb-4 bg-white/[0.03] border border-white/10 rounded-xl p-3">
         <img
           id="currentTrackImage"
           src=""
           alt=""
-          class="w-16 h-16 rounded shadow-lg hidden"
+          class="w-16 h-16 rounded-xl shadow-lg hidden"
         />
         <div class="flex-1 min-w-0">
           <h4
@@ -413,7 +417,7 @@
           >
             Aucune lecture
           </h4>
-          <p id="currentTrackArtist" class="text-green-100 text-sm truncate">
+          <p id="currentTrackArtist" class="text-gray-300 text-sm truncate">
             -
           </p>
         </div>
@@ -421,23 +425,23 @@
 
       <!-- Barre de progression -->
       <div class="mb-3">
-        <div class="flex justify-between text-xs text-green-100 mb-1">
+        <div class="flex justify-between text-xs text-gray-300 mb-1">
           <span id="currentTime">0:00</span>
           <span id="totalTime">0:00</span>
         </div>
         <div
           id="progressBar"
-          class="w-full h-2 bg-green-900 rounded-full cursor-pointer relative overflow-hidden group"
+          class="w-full h-2 bg-white/10 rounded-full cursor-pointer relative overflow-hidden group"
         >
           <div
             id="progressFill"
-            class="h-full bg-white rounded-full transition-all duration-300"
+            class="h-full bg-violet-400 rounded-full transition-all duration-300"
             style="width: 0%"
           ></div>
           <!-- Hover indicator -->
           <div
             id="progressHover"
-            class="absolute top-0 h-full bg-white opacity-20 hidden group-hover:block pointer-events-none"
+            class="absolute top-0 h-full bg-violet-300 opacity-30 hidden group-hover:block pointer-events-none"
             style="width: 0%; left: 0%"
           ></div>
         </div>
@@ -447,19 +451,19 @@
       <div class="flex justify-center gap-3">
         <button
           id="btnPrevious"
-          class="bg-white/10 text-white hover:bg-white/20 font-semibold py-2 px-4 rounded-xl transition"
+          class="border border-white/20 bg-white/5 text-white hover:bg-white/10 font-semibold py-2 px-4 rounded-xl transition"
         >
           ⏮️
         </button>
         <button
           id="playPauseBtn"
-          class="bg-white/10 text-white hover:bg-white/20 font-semibold py-3 px-6 rounded-xl transition text-lg"
+          class="bg-violet-600 text-white hover:bg-violet-500 font-semibold py-3 px-6 rounded-xl transition text-lg"
         >
           ▶️
         </button>
         <button
           id="btnNext"
-          class="bg-white/10 text-white hover:bg-white/20 font-semibold py-2 px-4 rounded-xl transition"
+          class="border border-white/20 bg-white/5 text-white hover:bg-white/10 font-semibold py-2 px-4 rounded-xl transition"
         >
           ⏭️
         </button>
@@ -720,6 +724,26 @@
         const minutes = Math.floor(totalSeconds / 60);
         const seconds = totalSeconds % 60;
         return `${minutes}:${seconds.toString().padStart(2, "0")}`;
+      }
+
+      function getTrackDurationMs(request) {
+        return window.TimeUtils.getDurationMs(request?.duration_ms);
+      }
+
+      function getQueueWaitMinutes(index) {
+        return window.TimeUtils.estimateQueueWaitMinutes(queue, index);
+      }
+
+      function getQueueTotalWaitMinutes() {
+        if (!Array.isArray(queue) || queue.length === 0) {
+          return 1;
+        }
+
+        const totalMs = queue.reduce((sum, request) => {
+          return sum + window.TimeUtils.getDurationMs(request?.duration_ms);
+        }, 0);
+
+        return Math.max(1, Math.ceil(totalMs / 60000));
       }
 
       async function seekToPosition(positionMs) {
@@ -1538,6 +1562,7 @@
             <h3 class="font-bold text-white">${request.song_name}</h3>
             <p class="text-gray-300 text-sm">${request.artist}</p>
             <p class="text-xs text-gray-400 mt-1">Par ${request.user_name}</p>
+            <p class="text-xs text-violet-300 mt-1">⏱️ Si acceptée maintenant: ~${getQueueTotalWaitMinutes()} min</p>
           </div>
         </div>
         <div class="flex gap-2">
@@ -1596,6 +1621,7 @@
               <h3 class="font-bold text-white truncate">${request.song_name}</h3>
               <p class="text-gray-300 text-sm truncate">${request.artist}</p>
               <p class="text-xs text-gray-400">Par ${request.user_name}</p>
+              <p class="text-xs text-violet-300 mt-1">⏱️ Passage estimé dans ~${getQueueWaitMinutes(index)} min</p>
               <div class="flex gap-2 mt-1">
                 <span class="text-xs ${voteColor} font-bold">
                   👍 ${request.upvotes || 0} | 👎 ${request.downvotes || 0} | Net: ${netVotes > 0 ? "+" : ""}${netVotes}

@@ -2,6 +2,7 @@ const { v4: uuidv4 } = require("uuid");
 const db = require("../config/database");
 const queueService = require("../services/queue.service");
 const rateLimitService = require("../services/rateLimit.service");
+const { formatRemainingDelay } = require("../utils/time.utils");
 
 function setupSocketHandlers(io) {
   io.on("connection", (socket) => {
@@ -36,7 +37,7 @@ function setupSocketHandlers(io) {
         if (!rateLimitCheck.allowed) {
           socket.emit("request-error", {
             type: "rate-limit",
-            message: `Limite atteinte. Réessaie dans ${rateLimitCheck.remainingTime} minutes.`,
+            message: `Limite atteinte. Réessaie dans ${formatRemainingDelay(rateLimitCheck.remainingMs)}.`,
           });
           return;
         }
@@ -86,8 +87,8 @@ function setupSocketHandlers(io) {
         await db.query(
           `INSERT INTO requests 
       (id, event_id, socket_id, user_name, song_name, artist, spotify_uri, 
-       image_url, preview_url, status, queue_position) 
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+       image_url, preview_url, duration_ms, status, queue_position) 
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
           [
             requestId,
             eventId,
@@ -97,7 +98,8 @@ function setupSocketHandlers(io) {
             songData.artist,
             songData.uri,
             songData.image,
-            songData.preview || null,
+            songData.preview_url || songData.preview || null,
+            songData.duration_ms || null,
             status,
             queuePosition,
           ],

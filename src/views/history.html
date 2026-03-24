@@ -91,6 +91,7 @@
     </div>
 
     <script src="/js/csrf.js"></script>
+    <script src="/js/time-utils.js"></script>
     <script>
       document
         .getElementById("btnBackToDashboard")
@@ -116,9 +117,8 @@
           // Stats
           document.getElementById("totalEndedEvents").textContent =
             data.stats.totalEnded || 0;
-          document.getElementById("totalDuration").textContent = formatDuration(
-            data.stats.totalDurationMinutes || 0,
-          );
+          document.getElementById("totalDuration").textContent =
+            window.TimeUtils.formatMinutes(data.stats.totalDurationMinutes || 0);
           document.getElementById("totalSongsPlayed").textContent =
             data.stats.totalSongsPlayed || 0;
 
@@ -127,13 +127,6 @@
           console.error("Erreur:", error);
           alert("Erreur lors du chargement de l'historique");
         }
-      }
-
-      function formatDuration(minutes) {
-        if (minutes < 60) return `${minutes}m`;
-        const hours = Math.floor(minutes / 60);
-        const mins = minutes % 60;
-        return mins > 0 ? `${hours}h${mins}` : `${hours}h`;
       }
 
       function renderEndedEvents(events) {
@@ -166,7 +159,7 @@
                   <h3 class="font-bold text-lg text-white">${event.name}</h3>
                   <span class="bg-white/10 text-gray-200 text-xs font-semibold px-2 py-1 rounded-full border border-white/20">TERMINÉE</span>
                 </div>
-                <p class="text-sm text-gray-400">${dateStr} • Durée: ${formatDuration(duration)}</p>
+                <p class="text-sm text-gray-400">${dateStr} • Durée: ${window.TimeUtils.formatMinutes(duration)}</p>
                 <div class="flex gap-4 mt-2 text-sm">
                   <span class="text-green-300">✓ ${event.played_songs || 0} jouées</span>
                   <span class="text-red-300">✗ ${event.rejected_songs || 0} refusées</span>

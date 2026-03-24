@@ -81,13 +81,29 @@
       }
     </style>
 
+    <script src="/js/time-utils.js"></script>
     <script>
       const eventId = window.location.pathname.split("/")[2];
+      let eventData = null;
+
+      function updateEventDurationDisplay() {
+        if (!eventData?.created_at) return;
+
+        const startedAt = new Date(eventData.created_at);
+        const endedAt = eventData.ended_at
+          ? new Date(eventData.ended_at)
+          : new Date();
+
+        const durationMinutes = Math.floor((endedAt - startedAt) / (1000 * 60));
+        document.getElementById("duration").textContent =
+          window.TimeUtils.formatMinutes(durationMinutes);
+      }
 
       // Charger les infos de l'événement terminé
       fetch(`/api/events/${eventId}`)
         .then((r) => r.json())
         .then((data) => {
+          eventData = data;
           document.getElementById("eventName").textContent = data.name;
 
           // Message personnalisé du DJ (si disponible)
@@ -95,6 +111,8 @@
             document.getElementById("thankYouMessage").innerHTML =
               data.thank_you_message.replace(/\n/g, "<br>");
           }
+
+          updateEventDurationDisplay();
         })
         .catch((err) => {
           console.error("Erreur chargement event:", err);
@@ -108,9 +126,7 @@
             data.stats.played_count || 0;
           document.getElementById("totalRequests").textContent =
             data.stats.total_requests || 0;
-
-          // Calculer la durée (placeholder pour l'instant)
-          document.getElementById("duration").textContent = "🔥";
+          updateEventDurationDisplay();
         })
         .catch((err) => {
           console.error("Erreur chargement stats:", err);
