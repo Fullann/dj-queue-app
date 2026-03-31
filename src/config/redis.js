@@ -4,31 +4,41 @@ let redisClient = null;
 
 if (process.env.NODE_ENV === "production") {
   const redisConfig = {
-    password: process.env.REDIS_PASSWORD || undefined
+    password: process.env.REDIS_PASSWORD || undefined,
   };
 
   if (process.env.REDIS_SOCKET_PATH) {
     redisConfig.socket = {
-      path: process.env.REDIS_SOCKET_PATH
+      path: process.env.REDIS_SOCKET_PATH,
+      keepAlive: true,
+      reconnectStrategy: (retries) => Math.min(retries * 200, 5000),
     };
   } else if (process.env.REDIS_URL) {
     redisConfig.url = process.env.REDIS_URL;
-  } else {
+  } else if (process.env.REDIS_HOST) {
     redisConfig.socket = {
-      host: '127.0.0.1',
-      port: 6379
+      host: process.env.REDIS_HOST,
+      port: parseInt(process.env.REDIS_PORT || "6379", 10),
+      keepAlive: true,
+      reconnectStrategy: (retries) => Math.min(retries * 200, 5000),
     };
+  } else {
+    console.warn("⚠️  Aucune config Redis (REDIS_URL/HOST/SOCKET_PATH)");
   }
 
-  redisClient = redis.createClient(redisConfig);
+  if (redisConfig.url || redisConfig.socket) {
+    redisClient = redis.createClient(redisConfig);
+  }
 
-  redisClient.on("error", (err) => {
-    console.error("Redis Client Error:", err);
-  });
+  if (redisClient) {
+    redisClient.on("error", (err) => {
+      console.error("Redis Client Error:", err);
+    });
 
-  redisClient.on("connect", () => {
-    console.log("Redis connecté");
-  });
+    redisClient.on("ready", () => {
+      console.log("Redis prêt");
+    });
+  }
 } else {
   console.log("Redis non configuré (mode dev)");
 }
@@ -36,7 +46,9 @@ if (process.env.NODE_ENV === "production") {
 async function connectRedis() {
   if (redisClient) {
     try {
-      await redisClient.connect();
+      if (!redisClient.isOpen) {
+        await redisClient.connect();
+      }
       console.log("Connexion Redis établie");
     } catch (err) {
       console.error("Impossible de se connecter à Redis:", err);

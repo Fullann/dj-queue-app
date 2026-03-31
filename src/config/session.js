@@ -20,16 +20,22 @@ const sessionConfig = {
 };
 
 // Redis uniquement en production
-if (process.env.NODE_ENV === "production" && process.env.REDIS_URL) {
+if (process.env.NODE_ENV === "production") {
   try {
     const RedisStore = require("connect-redis").default;
     const { redisClient } = require("./redis");
 
-    sessionConfig.store = new RedisStore({
-      client: redisClient,
-      prefix: "djqueue:sess:",
-      ttl: 7 * 24 * 60 * 60,
-    });
+    if (redisClient) {
+      sessionConfig.store = new RedisStore({
+        client: redisClient,
+        prefix: "djqueue:sess:",
+        ttl: 7 * 24 * 60 * 60,
+      });
+    } else {
+      console.warn(
+        "⚠️  Redis non disponible, utilisation du store mémoire pour les sessions",
+      );
+    }
   } catch (error) {
     console.error(
       "⚠️  Erreur config Redis, utilisation du store mémoire:",

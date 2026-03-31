@@ -14,6 +14,18 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Prepare clean deploy directory
+        run: |
+          mkdir -p deploy-dist
+          rsync -a --delete \
+            --exclude ".git/" \
+            --exclude ".github/" \
+            --exclude "node_modules/" \
+            --exclude ".env" \
+            --exclude ".env.*" \
+            --exclude ".DS_Store" \
+            ./ deploy-dist/
+
       - name: Deploy via FTP/FTPS
         uses: SamKirkland/FTP-Deploy-Action@v4.3.6
         with:
@@ -22,11 +34,12 @@ jobs:
           password: ${{ secrets.SFTP_PASSWORD }}
           port: ${{ secrets.SFTP_PORT }}
           protocol: ftps
-          local-dir: ./
+          local-dir: deploy-dist/
           server-dir: ${{ secrets.SFTP_TARGET_DIR }}
           exclude: |
-            **/.git*
+            **/.git/**
             **/.github/**
             **/node_modules/**
             **/.env
+            **/.env.*
           dangerous-clean-slate: true
