@@ -270,6 +270,42 @@ pm2 startup
 pm2 save
 ```
 
+### Déploiement automatique (GitHub Actions + o2switch FTPS)
+
+Le workflow est fourni dans `.github/workflows/deploy-o2switch.yml`.
+
+Il déploie automatiquement sur push `main` (et manuellement via `workflow_dispatch`) via FTPS.
+
+#### 1) Secrets GitHub à créer
+
+Dans `Settings > Secrets and variables > Actions`, ajoute:
+- `SFTP_HOST` : hôte FTP/FTPS o2switch
+- `SFTP_PORT` : port FTP/FTPS (souvent `21`)
+- `SFTP_USER` : utilisateur FTP
+- `SFTP_PASSWORD` : mot de passe FTP
+- `SFTP_TARGET_DIR` : dossier cible (ex: `/www/`)
+
+#### 2) Préparer le serveur o2switch
+
+```bash
+# Créer le .env en production (non versionné)
+nano /chemin/vers/votre/app/.env
+
+# Installer PM2 (si pas déjà fait)
+npm install -g pm2
+```
+
+#### 3) Premier lancement PM2 (une seule fois)
+
+```bash
+cd /chemin/vers/votre/app
+npm ci --omit=dev
+pm2 start src/server.js --name dj-queue
+pm2 save
+```
+
+Ensuite, chaque push sur `main` déclenche le déploiement automatique.
+
 ### Variables d'environnement Production
 - `NODE_ENV=production`
 - `BASE_URL=https://votre-domaine.com`
