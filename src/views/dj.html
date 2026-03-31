@@ -51,6 +51,12 @@
             📱 QR Code
           </button>
           <button
+            id="openPublicDisplay"
+            class="border border-cyan-400/40 bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-200 font-semibold py-2 px-4 rounded-xl transition"
+          >
+            🖥️ Ecran public
+          </button>
+          <button
             id="addSongBtn"
             class="border border-white/20 bg-white/5 hover:bg-white/10 text-white font-semibold py-2 px-4 rounded-xl transition"
           >
@@ -315,6 +321,28 @@
                 class="bg-violet-600 hover:bg-violet-500 text-white font-semibold py-2 px-4 rounded-xl transition"
               >
                 📋 Copier
+              </button>
+            </div>
+          </div>
+
+          <div class="mb-6">
+            <label
+              class="block text-sm font-medium text-gray-300 mb-2"
+            >
+              Lien écran public (grand écran)
+            </label>
+            <div class="flex gap-2">
+              <input
+                type="text"
+                id="publicDisplayLinkInput"
+                readonly
+                class="flex-1 px-4 py-2 border border-white/20 bg-black/30 text-white rounded-xl text-sm"
+              />
+              <button
+                id="openPublicDisplayFromQR"
+                class="bg-cyan-600 hover:bg-cyan-500 text-white font-semibold py-2 px-4 rounded-xl transition"
+              >
+                Ouvrir
               </button>
             </div>
           </div>
@@ -832,6 +860,9 @@
         .getElementById("showQRCode")
         .addEventListener("click", showQRCodePanel);
       document
+        .getElementById("openPublicDisplay")
+        .addEventListener("click", openPublicDisplay);
+      document
         .getElementById("addSongBtn")
         .addEventListener("click", showAddSongPanel);
       document
@@ -853,6 +884,9 @@
       document
         .getElementById("copyLinkBtn")
         .addEventListener("click", copyUserLink);
+      document
+        .getElementById("openPublicDisplayFromQR")
+        .addEventListener("click", openPublicDisplay);
 
       // Add Song panel
       document
@@ -1328,11 +1362,17 @@
 
           document.getElementById("qrCodeImage").src = data.qrCode;
           document.getElementById("userLinkInput").value = data.userUrl;
+          document.getElementById("publicDisplayLinkInput").value =
+            `${window.location.origin}/event/${eventId}/qr`;
           document.getElementById("qrCodePanel").classList.remove("hidden");
         } catch (error) {
           console.error("Erreur chargement QR code:", error);
           alert("Erreur lors du chargement du QR code");
         }
+      }
+
+      function openPublicDisplay() {
+        window.open(`/event/${eventId}/qr`, "_blank", "noopener,noreferrer");
       }
 
       function closeQRCodePanel() {

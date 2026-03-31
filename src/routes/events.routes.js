@@ -49,6 +49,65 @@ router.get(
   eventsController.getEventStats,
 );
 
+// Données publiques pour écran QR (grand écran)
+router.get(
+  "/:eventId/display-data",
+  eventIdValidator,
+  handleValidationErrors,
+  async (req, res) => {
+    const { eventId } = req.params;
+
+    try {
+      const [eventRows] = await db.query("SELECT id, name FROM events WHERE id = ?", [
+        eventId,
+      ]);
+
+      if (eventRows.length === 0) {
+        return res.status(404).json({ error: "Événement non trouvé" });
+      }
+
+      const [upcomingQueue] = await db.query(
+        `SELECT
+          id,
+          song_name,
+          artist,
+          image_url,
+          user_name,
+          duration_ms,
+          queue_position
+        FROM requests
+        WHERE event_id = ? AND status = 'accepted'
+        ORDER BY queue_position ASC`,
+        [eventId],
+      );
+
+      const [recentPlayed] = await db.query(
+        `SELECT
+          id,
+          song_name,
+          artist,
+          image_url,
+          user_name,
+          played_at
+        FROM requests
+        WHERE event_id = ? AND status = 'played'
+        ORDER BY played_at DESC
+        LIMIT 12`,
+        [eventId],
+      );
+
+      res.json({
+        event: eventRows[0],
+        upcomingQueue,
+        recentPlayed,
+      });
+    } catch (error) {
+      console.error("Erreur display-data:", error);
+      res.status(500).json({ error: "Erreur serveur" });
+    }
+  },
+);
+
 // Contrôles DJ
 router.post(
   "/:eventId/toggle-votes",

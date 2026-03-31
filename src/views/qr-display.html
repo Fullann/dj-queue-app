@@ -12,90 +12,90 @@
       }
     </style>
   </head>
-  <body
-    class="bg-[#0d0d0d] text-white min-h-screen flex items-center justify-center p-4"
-  >
-    <div class="max-w-2xl w-full">
-      <!-- Carte QR Code -->
-      <div class="bg-white/5 border border-white/10 rounded-2xl shadow-2xl p-8 text-center">
-        <h1 id="eventName" class="text-3xl font-extrabold text-white mb-2">
-          Soirée
-        </h1>
-        <p class="text-gray-400 mb-8">Scanne le QR code pour rejoindre !</p>
-
-        <!-- QR Code -->
-        <div class="flex justify-center mb-8">
-          <img
-            id="qrCode"
-            src=""
-            alt="QR Code"
-            class="w-80 h-80 border-4 border-violet-400/40 rounded-xl bg-white p-2"
-          />
+  <body class="bg-[#0d0d0d] text-white min-h-screen p-4 lg:p-6">
+    <div class="max-w-[1600px] mx-auto">
+      <div class="mb-4 lg:mb-6 flex items-center justify-between gap-4">
+        <div>
+          <h1 id="eventName" class="text-3xl lg:text-4xl font-extrabold">Soiree</h1>
+          <p class="text-gray-400">Ecran live de la soiree</p>
         </div>
-
-        <!-- URL -->
-        <div class="bg-white/5 border border-white/10 rounded-xl p-4 mb-6">
-          <p class="text-sm text-gray-400 mb-2">Ou partage ce lien :</p>
-          <div class="flex items-center gap-2">
-            <input
-              id="eventUrl"
-              type="text"
-              readonly
-              class="flex-1 px-4 py-2 bg-black/30 border border-white/20 rounded-xl text-sm text-white"
-            />
-            <button
-              id="btnCopyUrl"
-              class="bg-violet-600 hover:bg-violet-500 text-white font-semibold py-2 px-6 rounded-xl transition"
-            >
-              📋 Copier
-            </button>
-          </div>
-        </div>
-
-        <!-- Actions -->
-        <div class="flex gap-3 justify-center">
-          <button
-            id="btnPrint"
-            class="bg-cyan-600 hover:bg-cyan-500 text-white font-semibold py-3 px-6 rounded-xl transition"
-          >
-            🖨️ Imprimer
-          </button>
-          <button
-            id="btnGoToDJ"
-            class="bg-violet-600 hover:bg-violet-500 text-white font-semibold py-3 px-6 rounded-xl transition"
-          >
-            🎧 Interface DJ
-          </button>
-          <button
-            id="btnBackToDashboard"
-            class="border border-white/20 bg-white/5 hover:bg-white/10 text-gray-100 font-semibold py-3 px-6 rounded-xl transition"
-          >
-            ← Dashboard
-          </button>
+        <div class="flex items-center gap-2 text-sm">
+          <span class="w-2.5 h-2.5 rounded-full bg-green-400 animate-pulse"></span>
+          <span class="text-green-300 font-semibold">LIVE</span>
         </div>
       </div>
 
-      <!-- Stats en temps réel -->
-      <div class="mt-6 bg-white/5 border border-white/10 rounded-2xl shadow p-6">
-        <h2 class="text-xl font-bold text-white mb-4">
-          📊 Stats en temps réel
-        </h2>
-        <div class="grid grid-cols-3 gap-4 text-center">
-          <div>
-            <p class="text-3xl font-extrabold text-violet-400" id="pendingCount">
-              0
-            </p>
-            <p class="text-sm text-gray-400">En attente</p>
+      <div class="grid grid-cols-1 xl:grid-cols-12 gap-4 lg:gap-6">
+        <aside class="xl:col-span-4 space-y-4 lg:space-y-6">
+          <div class="bg-white/5 border border-white/10 rounded-2xl shadow-2xl p-6 text-center">
+            <p class="text-gray-300 text-lg mb-4">Scanne pour proposer une musique</p>
+            <div class="flex justify-center mb-5">
+              <img
+                id="qrCode"
+                src=""
+                alt="QR Code"
+                class="w-64 h-64 lg:w-72 lg:h-72 border-4 border-violet-400/40 rounded-xl bg-white p-2"
+              />
+            </div>
+            <div class="bg-white/5 border border-white/10 rounded-xl p-3">
+              <p class="text-xs text-gray-400 mb-2">Lecture en cours :</p>
+              <div class="flex items-center gap-3">
+                <img
+                  id="nowPlayingImage"
+                  src=""
+                  alt="Pochette en cours"
+                  class="w-14 h-14 rounded-lg object-cover hidden"
+                />
+                <div class="min-w-0 flex-1 text-left">
+                  <p id="nowPlayingTitle" class="text-sm font-semibold text-white truncate">
+                    Aucune musique en cours
+                  </p>
+                  <p id="nowPlayingArtist" class="text-xs text-gray-400 truncate">-</p>
+                </div>
+              </div>
+            </div>
           </div>
-          <div>
-            <p class="text-3xl font-extrabold text-green-400" id="queueCount">0</p>
-            <p class="text-sm text-gray-400">Dans la queue</p>
+
+          <div class="bg-white/5 border border-white/10 rounded-2xl p-5">
+            <h2 class="text-lg font-bold mb-4">📊 Stats live</h2>
+            <div class="grid grid-cols-3 gap-3 text-center">
+              <div>
+                <p class="text-2xl lg:text-3xl font-extrabold text-violet-400" id="pendingCount">0</p>
+                <p class="text-xs text-gray-400">En attente</p>
+              </div>
+              <div>
+                <p class="text-2xl lg:text-3xl font-extrabold text-green-400" id="queueCount">0</p>
+                <p class="text-xs text-gray-400">Queue</p>
+              </div>
+              <div>
+                <p class="text-2xl lg:text-3xl font-extrabold text-cyan-400" id="playedCount">0</p>
+                <p class="text-xs text-gray-400">Jouees</p>
+              </div>
+            </div>
           </div>
-          <div>
-            <p class="text-3xl font-extrabold text-cyan-400" id="playedCount">0</p>
-            <p class="text-sm text-gray-400">Jouées</p>
+        </aside>
+
+        <section class="xl:col-span-8 space-y-4 lg:space-y-6">
+          <div class="bg-white/5 border border-white/10 rounded-2xl p-5 lg:p-6">
+            <div class="flex items-center justify-between mb-4">
+              <h2 class="text-2xl font-bold">🎵 Prochaines musiques</h2>
+              <span id="upcomingCount" class="text-sm text-gray-400">(0)</span>
+            </div>
+            <div id="upcomingList" class="space-y-3">
+              <p class="text-gray-400 text-center py-8">Chargement...</p>
+            </div>
           </div>
-        </div>
+
+          <div class="bg-white/5 border border-white/10 rounded-2xl p-5 lg:p-6">
+            <div class="flex items-center justify-between mb-4">
+              <h2 class="text-2xl font-bold">✅ Dernieres jouees</h2>
+              <span id="playedListCount" class="text-sm text-gray-400">(0)</span>
+            </div>
+            <div id="playedList" class="space-y-3">
+              <p class="text-gray-400 text-center py-8">Chargement...</p>
+            </div>
+          </div>
+        </section>
       </div>
     </div>
 
@@ -107,109 +107,155 @@
 
       // ========== Event Listeners ==========
 
-      document.getElementById("btnCopyUrl").addEventListener("click", copyUrl);
-      document.getElementById("btnPrint").addEventListener("click", printQR);
-      document.getElementById("btnGoToDJ").addEventListener("click", goToDJ);
-      document
-        .getElementById("btnBackToDashboard")
-        .addEventListener("click", backToDashboard);
-
       // ========== Fonctions ==========
 
-      // Charger les données
-      fetch(`/api/events/${eventId}`)
-        .then((r) => r.json())
-        .then((data) => {
-          document.getElementById("eventName").textContent = data.name;
-          document.getElementById("eventUrl").value =
-            window.location.origin + "/user/" + eventId;
-
-          // Générer QR code
-          fetch(`/api/events/${eventId}/qrcode`)
-            .then((r) => r.json())
-            .then((qr) => {
-              document.getElementById("qrCode").src = qr.qrCode;
-            });
-
-          updateStats();
-        })
-        .catch((error) => {
-          console.error("Erreur chargement événement:", error);
-          alert("Erreur lors du chargement de l'événement");
+      function formatClock(dateString) {
+        if (!dateString) return "--:--";
+        return new Date(dateString).toLocaleTimeString("fr-FR", {
+          hour: "2-digit",
+          minute: "2-digit",
         });
+      }
+
+      function renderUpcoming(upcomingQueue = []) {
+        const container = document.getElementById("upcomingList");
+        document.getElementById("upcomingCount").textContent = `(${upcomingQueue.length})`;
+
+        if (!upcomingQueue.length) {
+          container.innerHTML =
+            '<p class="text-gray-400 text-center py-8">Aucune musique en queue pour le moment</p>';
+          return;
+        }
+
+        container.innerHTML = upcomingQueue
+          .slice(0, 12)
+          .map((song, index) => {
+            return `
+            <div class="border border-white/10 bg-white/[0.02] rounded-xl p-3">
+              <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-full bg-violet-600 text-white flex items-center justify-center font-bold text-sm">${index + 1}</div>
+                ${
+                  song.image_url
+                    ? `<img src="${song.image_url}" alt="${song.song_name}" class="w-12 h-12 rounded-lg object-cover" />`
+                    : '<div class="w-12 h-12 rounded-lg bg-white/10"></div>'
+                }
+                <div class="flex-1 min-w-0">
+                  <p class="font-semibold text-white truncate">${song.song_name}</p>
+                  <p class="text-sm text-gray-300 truncate">${song.artist}</p>
+                  <p class="text-xs text-gray-400">Proposee par ${song.user_name || "Anonyme"}</p>
+                </div>
+              </div>
+            </div>
+          `;
+          })
+          .join("");
+      }
+
+      function renderPlayed(recentPlayed = []) {
+        const container = document.getElementById("playedList");
+        document.getElementById("playedListCount").textContent = `(${recentPlayed.length})`;
+
+        if (!recentPlayed.length) {
+          container.innerHTML =
+            '<p class="text-gray-400 text-center py-8">Aucune musique jouee pour le moment</p>';
+          return;
+        }
+
+        container.innerHTML = recentPlayed
+          .slice(0, 12)
+          .map((song) => {
+            return `
+            <div class="border border-white/10 bg-white/[0.02] rounded-xl p-3">
+              <div class="flex items-center gap-3">
+                ${
+                  song.image_url
+                    ? `<img src="${song.image_url}" alt="${song.song_name}" class="w-12 h-12 rounded-lg object-cover" />`
+                    : '<div class="w-12 h-12 rounded-lg bg-white/10"></div>'
+                }
+                <div class="flex-1 min-w-0">
+                  <p class="font-semibold text-white truncate">${song.song_name}</p>
+                  <p class="text-sm text-gray-300 truncate">${song.artist}</p>
+                  <p class="text-xs text-gray-400">Jouee a ${formatClock(song.played_at)}</p>
+                </div>
+              </div>
+            </div>
+          `;
+          })
+          .join("");
+      }
+
+      async function loadDisplayData() {
+        try {
+          const [eventResponse, qrResponse, statsResponse, displayResponse] = await Promise.all([
+            fetch(`/api/events/${eventId}`),
+            fetch(`/api/events/${eventId}/qrcode`),
+            fetch(`/api/events/${eventId}/stats`),
+            fetch(`/api/events/${eventId}/display-data`),
+          ]);
+
+          const eventData = await eventResponse.json();
+          const qrData = await qrResponse.json();
+          const statsData = await statsResponse.json();
+          const displayData = await displayResponse.json();
+
+          document.getElementById("eventName").textContent =
+            displayData.event?.name || eventData.name || "Soiree";
+          document.getElementById("qrCode").src = qrData.qrCode;
+
+          document.getElementById("pendingCount").textContent =
+            statsData.stats?.pending_count || 0;
+          document.getElementById("queueCount").textContent =
+            statsData.stats?.accepted_count || 0;
+          document.getElementById("playedCount").textContent =
+            statsData.stats?.played_count || 0;
+
+          renderUpcoming(displayData.upcomingQueue || []);
+          renderPlayed(displayData.recentPlayed || []);
+          updateNowPlaying(displayData);
+        } catch (error) {
+          console.error("Erreur chargement affichage live:", error);
+        }
+      }
+
+      function updateNowPlaying(displayData) {
+        const nowPlaying = displayData?.recentPlayed?.[0] || null;
+
+        const imageEl = document.getElementById("nowPlayingImage");
+        const titleEl = document.getElementById("nowPlayingTitle");
+        const artistEl = document.getElementById("nowPlayingArtist");
+
+        if (!nowPlaying) {
+          imageEl.classList.add("hidden");
+          imageEl.src = "";
+          titleEl.textContent = "Aucune musique en cours";
+          artistEl.textContent = "-";
+          return;
+        }
+
+        if (nowPlaying.image_url) {
+          imageEl.src = nowPlaying.image_url;
+          imageEl.classList.remove("hidden");
+        } else {
+          imageEl.classList.add("hidden");
+          imageEl.src = "";
+        }
+
+        titleEl.textContent = nowPlaying.song_name || "Titre inconnu";
+        artistEl.textContent = nowPlaying.artist || "Artiste inconnu";
+      }
 
       // WebSocket pour stats temps réel
       socket.emit("join-event", eventId);
 
-      socket.on("new-request", () => updateStats());
-      socket.on("request-accepted", () => updateStats());
-      socket.on("queue-updated", () => updateStats());
+      socket.on("new-request", loadDisplayData);
+      socket.on("request-accepted", loadDisplayData);
+      socket.on("request-rejected", loadDisplayData);
+      socket.on("queue-updated", loadDisplayData);
+      socket.on("vote-updated", loadDisplayData);
+      socket.on("event-ended", loadDisplayData);
 
-      async function updateStats() {
-        try {
-          const response = await fetch(`/api/events/${eventId}/stats`);
-          const data = await response.json();
-
-          document.getElementById("pendingCount").textContent =
-            data.stats.pending_count || 0;
-          document.getElementById("queueCount").textContent =
-            data.stats.accepted_count || 0;
-          document.getElementById("playedCount").textContent =
-            data.stats.played_count || 0;
-        } catch (error) {
-          console.error("Erreur mise à jour stats:", error);
-        }
-      }
-
-      function copyUrl() {
-        const url = document.getElementById("eventUrl");
-        url.select();
-        url.setSelectionRange(0, 99999); // Pour mobile
-
-        // Méthode moderne
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-          navigator.clipboard
-            .writeText(url.value)
-            .then(() => {
-              showCopySuccess();
-            })
-            .catch(() => {
-              // Fallback
-              document.execCommand("copy");
-              showCopySuccess();
-            });
-        } else {
-          // Fallback pour anciens navigateurs
-          document.execCommand("copy");
-          showCopySuccess();
-        }
-      }
-
-      function showCopySuccess() {
-        const btn = document.getElementById("btnCopyUrl");
-        const originalText = btn.innerHTML;
-        btn.innerHTML = "✅ Copié !";
-        btn.classList.add("bg-green-600");
-        btn.classList.remove("bg-violet-600");
-
-        setTimeout(() => {
-          btn.innerHTML = originalText;
-          btn.classList.remove("bg-green-600");
-          btn.classList.add("bg-violet-600");
-        }, 2000);
-      }
-
-      function printQR() {
-        window.print();
-      }
-
-      function goToDJ() {
-        window.location.href = `/dj/${eventId}`;
-      }
-
-      function backToDashboard() {
-        window.location.href = "/dashboard";
-      }
+      loadDisplayData();
+      setInterval(loadDisplayData, 15000);
     </script>
 
     <style>
@@ -221,7 +267,8 @@
         button {
           display: none;
         }
-        .mt-6 {
+        #upcomingList,
+        #playedList {
           display: none;
         }
         #eventName,
