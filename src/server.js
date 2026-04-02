@@ -33,7 +33,12 @@ const setupSocketHandlers = require("./sockets/eventHandlers");
 // Services
 const rateLimitService = require("./services/rateLimit.service");
 
-const PORT = process.env.PORT || 3000;
+const PORT = Number(process.env.PORT) || 3000;
+const HOST =
+  process.env.HOST ||
+  process.env.IP ||
+  // Passenger/containers need a real interface binding
+  "0.0.0.0";
 
 function renderErrorPage(res, status, title, message) {
   return res.status(status).send(`
@@ -328,8 +333,10 @@ async function start() {
       await connectRedis();
     }
 
-    http.listen(PORT, () => {
-      console.log(`🎵 Serveur sur http://localhost:${PORT}`);
+    http.listen(PORT, HOST, () => {
+      const baseUrl =
+        process.env.BASE_URL || `http://${HOST === "0.0.0.0" ? "localhost" : HOST}:${PORT}`;
+      console.log(`🎵 Serveur démarré: ${baseUrl}`);
       if (process.env.NODE_ENV === "production") {
         console.log(`🔴 Redis: Sessions persistantes`);
         console.log(`⚡ Rate limiting: Activé (500 req/15min)`);

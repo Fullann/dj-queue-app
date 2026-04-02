@@ -4,7 +4,7 @@
   "description": "App de queue musicale avec votes et MySQL",
   "main": "server.js",
   "scripts": {
-    "start": "node --no-experimental-fetch src/server.js",
+    "start": "node --no-experimental-fetch app.js",
     "dev": "nodemon src/server.js"
   },
   "dependencies": {
