@@ -5,7 +5,10 @@
   "main": "server.js",
   "scripts": {
     "start": "node --no-experimental-fetch app.js",
-    "dev": "nodemon src/server.js"
+    "dev": "nodemon src/server.js",
+    "ci:syntax": "node scripts/ci-syntax-check.js",
+    "ci:db": "node scripts/check-database-schema.js",
+    "ci": "npm run ci:syntax && npm run ci:db"
   },
   "dependencies": {
     "axios": "^1.6.0",

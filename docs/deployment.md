@@ -132,6 +132,43 @@ CDN / Static               MySQL (o2switch)   Redis (o2switch)
 
 ### CI/CD avec GitHub Actions
 
+#### Workflows
+
+| Fichier | Déclencheur | Rôle |
+|---------|--------------|------|
+| `.github/workflows/ci.yml` | Push / PR sur `main` | Syntaxe Node + import `db/db.sql` dans MySQL 8 (service) + script `check-database-schema.js` |
+| `.github/workflows/deploy.yml` | Push / dispatch sur `main` | Contrôle syntaxe puis déploiement FTPS (le déploiement ne part que si la syntaxe est OK) |
+| `.github/workflows/check-production.yml` | **Manuel** (`workflow_dispatch`) | Vérifie `GET /health` et, en option (`run_db_check=true`), la DB de prod |
+
+#### Scripts npm
+
+```bash
+npm run ci:syntax   # Tous les .js : node --check
+npm run ci:db       # Connexion MySQL + tables obligatoires (variables DB_* ou .env)
+npm run ci          # syntax + db (nécessite une base locale accessible)
+```
+
+#### Secrets pour « Check production »
+
+Dans GitHub → **Settings → Secrets and variables → Actions**, ajoute (noms exacts) :
+
+| Secret | Obligatoire | Description |
+|--------|-------------|-------------|
+| `PROD_DB_HOST` | Oui | Hôte MySQL (ex. `mysql123.o2switch.net` ou IP) |
+| `PROD_DB_USER` | Oui | Utilisateur MySQL |
+| `PROD_DB_PASSWORD` | Souvent | Mot de passe (peut être vide pour un compte sans mot de passe — rare) |
+| `PROD_DB_NAME` | Oui | Nom de la base (ex. `xxx_dj_queue`) |
+| `PROD_DB_PORT` | Non | Port (sinon **3306** ; laisser vide = 3306) |
+| `PROD_PUBLIC_URL` | Non | URL publique **sans** slash final (ex. `https://dj.example.com`) pour tester `/health` |
+
+Ensuite : **Actions → Check production (health + optional DB) → Run workflow**.
+
+> Si ta base n'est joignable **que localement** (LAN/VPN), laisse `run_db_check=false` dans GitHub Actions et exécute `npm run ci:db` depuis un poste qui a accès à la DB (ou utilise un **self-hosted runner** sur ton infra).
+
+> Les mêmes valeurs que dans ton `.env` de production (`DB_HOST`, `DB_USER`, etc.) — ne jamais les committer.
+
+#### CI/CD avec GitHub Actions (déploiement)
+
 Le déploiement est automatisé via `.github/workflows/deploy.yml` :
 
 **Déclencheurs :**

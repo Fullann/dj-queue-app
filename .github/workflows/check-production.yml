@@ -1,0 +1,67 @@
+# Contrôle manuel de la base MySQL de production + option GET /health.
+#
+# Secrets GitHub (Settings → Secrets → Actions) :
+#   PROD_DB_HOST, PROD_DB_USER, PROD_DB_PASSWORD, PROD_DB_NAME
+# Optionnel : PROD_DB_PORT (sinon 3306)
+# Optionnel : PROD_PUBLIC_URL (ex. https://ton-domaine.com, sans slash final)
+
+name: Check production (health + optional DB)
+
+on:
+  workflow_dispatch:
+    inputs:
+      run_db_check:
+        description: "Lancer aussi le check MySQL (nécessite DB accessible depuis le runner GitHub)"
+        required: false
+        default: false
+        type: boolean
+
+jobs:
+  check:
+    name: Santé prod + DB optionnelle
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Installer les dépendances
+        run: npm ci
+
+      - name: Vérifier la connexion et les tables (MySQL)
+        if: ${{ inputs.run_db_check }}
+        env:
+          DB_HOST: ${{ secrets.PROD_DB_HOST }}
+          DB_PORT: ${{ secrets.PROD_DB_PORT }}
+          DB_USER: ${{ secrets.PROD_DB_USER }}
+          DB_PASSWORD: ${{ secrets.PROD_DB_PASSWORD }}
+          DB_NAME: ${{ secrets.PROD_DB_NAME }}
+        run: npm run ci:db
+
+      - name: DB check ignoré (run_db_check=false)
+        if: ${{ !inputs.run_db_check }}
+        run: |
+          echo "run_db_check=false : check MySQL ignoré."
+          echo "Si la DB n'est accessible qu'en local/VPN, utilisez un self-hosted runner."
+
+      - name: GET /health (si PROD_PUBLIC_URL défini)
+        env:
+          BASE: ${{ secrets.PROD_PUBLIC_URL }}
+        run: |
+          if [ -z "$BASE" ]; then
+            echo "Secret PROD_PUBLIC_URL vide — étape /health ignorée."
+            exit 0
+          fi
+          URL="${BASE%/}/health"
+          echo "GET $URL"
+          code=$(curl -sS -o /tmp/health.json -w "%{http_code}" "$URL")
+          echo "HTTP $code"
+          cat /tmp/health.json
+          echo ""
+          if [ "$code" != "200" ] && [ "$code" != "503" ]; then
+            echo "Code HTTP inattendu (attendu 200 ou 503 dégradé)"
+            exit 1
+          fi

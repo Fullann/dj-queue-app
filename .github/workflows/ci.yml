@@ -1,0 +1,72 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  syntax:
+    name: Vérification syntaxe Node
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Installer les dépendances
+        run: npm ci
+
+      - name: Contrôle syntaxe (tous les .js)
+        run: npm run ci:syntax
+
+  db-schema:
+    name: Schéma MySQL (smoke)
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: ciroot
+          MYSQL_DATABASE: dj_queue_ci
+        ports:
+          3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -pciroot"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=30
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Client MySQL (CLI)
+        run: sudo apt-get update && sudo apt-get install -y mysql-client
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Installer les dépendances
+        run: npm ci
+
+      - name: Attendre MySQL + importer db/db.sql
+        env:
+          MYSQL_PWD: ciroot
+        run: |
+          for i in $(seq 1 60); do mysqladmin ping -h 127.0.0.1 -uciroot -pciroot --silent && break || sleep 2; done
+          mysql -h 127.0.0.1 -uroot -pciroot dj_queue_ci < db/db.sql
+
+      - name: Script check-database-schema
+        env:
+          DB_HOST: 127.0.0.1
+          DB_PORT: "3306"
+          DB_USER: root
+          DB_PASSWORD: ciroot
+          DB_NAME: dj_queue_ci
+        run: npm run ci:db
